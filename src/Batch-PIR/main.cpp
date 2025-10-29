@@ -1,26 +1,23 @@
 #include "okvs.h"
+#include "pir_io.h"
 
-std::vector<MatPoly> test_Batch_PIR_with_GCT_okvs(
+std::vector<MatPoly> Batch_PIR_with_GCT_okvs(
     size_t num_expansions, 
     size_t further_dims,
-    std::vector<size_t> IDX_TARGETs
+    std::vector<size_t> IDX_TARGETs,
+    std::string database=""
 ) {
-    do_MatPol_test();
-
     setup_constants();
-
     generate_gadgets();
 
-    // cout << "Look at this !!!" << endl;
-
+    // 数据库
     uint64_t *B;
-
-    // cout << random_data << endl;
-    // cout << "target index is:" << IDX_TARGET << endl;
-
-    // std::iota(IDX_TARGETs.begin(), IDX_TARGETs.end(), 1);
-
-    genDataBase(B, num_expansions, further_dims, IDX_TARGETs);
+    if (database == "") {
+      genDataBase(B, num_expansions, further_dims, IDX_TARGETs);      
+    } else {
+      auto rawDB = loadFile(database, total_n * n0 * n0 * poly_len);
+      genDataBaseFromRawDB(B, num_expansions, further_dims, rawDB);
+    }
 
     // print_DB(B, num_expansions, further_dims);
 
@@ -75,12 +72,7 @@ std::vector<MatPoly> test_Batch_PIR_with_GCT_okvs(
             ind_vec.push_back(static_cast<uint32_t>(0));
         }
     }
-    // cout << "============" << endl;
 
-    // for (size_t i = 0 ; i < ind_vec.size() ; i++) {
-    //     cout << ind_vec[i] << ' ';
-    // }
-    // cout << endl;
 
     // Client: 创建 Client 类
     MultiPirClient client_A(godSizes, ind_vec, godOracle, indexes);
@@ -104,7 +96,7 @@ std::vector<MatPoly> test_Batch_PIR_with_GCT_okvs(
     // cout << cvs.size() << endl;
     // cout << server_A.handles.size() << endl;
     std::vector<MatPoly> rs = server_A.MultiServerAnswer();
-    std::vector<MatPoly> pts = client_A.MultiResponseDecrypt(rs);
+    std::vector<MatPoly> pts = client_A.MultiAnswerDecrypt(rs);
 
     for (size_t i = 0 ; i < DBs.size() ; i++) {
         if (indexes.find(i) != indexes.end()) {
@@ -118,61 +110,67 @@ std::vector<MatPoly> test_Batch_PIR_with_GCT_okvs(
                     break;
                 }
             }
-            double log_var = check_relation(rs[i], modswitch_on_server, seq-1);
+            double log_var = check_relation(rs[i], modswitch_on_server, seq);
         }
     }
-    return pts;
+
+    std::vector<MatPoly> result;
+    result.reserve(IDX_TARGETs.size());
+    for (size_t i = 0; i < IDX_TARGETs.size(); ++i) {
+      size_t target = IDX_TARGETs[i];
+      size_t targetBucket = schedule[target][0];
+      result.push_back(pts[targetBucket]);
+    }
+    return result;
 }
 
 int main(int argc, char *argv[]) {
-    size_t num_expansions = 2; // max = 7 //used to be 8
-    size_t further_dims = 2; // v2
-    size_t total_n = (1 << num_expansions) * (1 << further_dims);
-
-    // size_t IDX_TARGET = 14;
-    // size_t IDX_DIM0 = IDX_TARGET / (1 << further_dims);
     #ifndef __EMSCRIPTEN__
 
+    // 生成常数、NTT表等参数
     build_table();
-
     // scratch = (uint64_t *)malloc(crt_count * poly_len * sizeof(uint64_t));
-
     ntt_qprime = new intel::hexl::NTT(2048, arb_qprime);
-
     bool ubench = false;
     bool high_rate = false;
-    // cout << "argc is:" << argc << endl;
+    std::vector<size_t> originalIdx;
 		std::vector<size_t> IDX_TARGETs;
+    ArgParser argParser;
 		
-    if (argc > 1) {
-			num_expansions = strtol(argv[1], NULL, 10); // max = 7 //used to be 8
-			further_dims = strtol(argv[2], NULL, 10);
-			total_n = (1 << num_expansions) * (1 << further_dims);
-			// IDX_TARGET = strtol(argv[3], NULL, 10);
-			IDX_TARGETs.resize(argc-3);
-			
-			size_t idx = 3;
-			for (auto &target: IDX_TARGETs) {
-				target = std::stol(argv[idx++]);
-			}
-    } else {
+    if (argc == 1) { // 无输入，运行测试
 			num_expansions = 6;
 			further_dims = 4;
 			total_n = (1 << num_expansions) * (1 << further_dims);
 			IDX_TARGETs.resize(8);
 			std::iota(IDX_TARGETs.begin(), IDX_TARGETs.end(), 1);
-		}
-    // 查询接口在这里, 数据库是 1024 个条目, 每个条目 8 KB
-    // 8 KB 有亿点点大, 可以只在前端中展示一部分
-    // 查询结果在这里
-    auto res = test_Batch_PIR_with_GCT_okvs(num_expansions, further_dims, IDX_TARGETs);
-    // uint64_t *B;
-    // genDataBase(B, num_expansions, further_dims, IDX_TARGETs);
-    // for (size_t i = 0; i < 10; i++) {
-    //     cout << B[i] << endl;
-    // }
-    for(size_t i = 0; i < res.size(); i++) {
-        output_pt(res[i]);
+      std::vector<MatPoly> result = Batch_PIR_with_GCT_okvs(num_expansions, further_dims, IDX_TARGETs);
+      return 0;
     }
-    #endif
+    argParser.parse(argc, argv);
+    num_expansions = std::stoull(argParser.get("dim0")); // max = 7 //used to be 8
+    further_dims = std::stoull(argParser.get("dim1"));
+    total_n = (1 << num_expansions) * (1 << further_dims);
+    for (auto& s : argParser.getList("query")) {
+      originalIdx.push_back(std::stoull(s));
+      size_t matIndex = getIdxAndOffline(std::stoull(s)).first;
+      IDX_TARGETs.push_back(matIndex);
+    }
+    // 查询
+#ifdef DEBUG
+    std::cout << "查询的矩阵索引: " << std::endl;
+    for (auto i: IDX_TARGETs)
+      std::cout << i << " ";
+    std::cout << std::endl;
+#endif
+    std::vector<MatPoly> result = Batch_PIR_with_GCT_okvs(num_expansions, further_dims, IDX_TARGETs, argParser.get("database"));
+
+    std::ofstream fout(argParser.get("output"));
+    for (size_t i = 0; i < originalIdx.size(); ++i) {
+      size_t offline = getIdxAndOffline(originalIdx[i]).second;
+      std::cout << "find the " << "i" << "th entry: " << result[i].data[offline] << std::endl;
+      fout << result[i].data[offline] << std::endl;
+    }
+
+    return 0;
+#endif
 }

@@ -27,12 +27,13 @@ endif()
 
 # main target
 # 设置可执行文件的输出目录
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
-set(SRC_FILES src/spiral.cpp src/core.cpp src/constants.cpp src/poly.cpp src/util.cpp src/client.cpp src/testing.cpp src/PBC/test.cpp src/PBC/cuckoo.cpp src/PBC/mod.cpp src/Multi-PIR/pir.cpp src/Multi-PIR/test.cpp src/Multi-PIR/multipir.cpp src/OCC/occ.cpp src/OCC/test.cpp src/OCC/rbmatrices.cpp src/OCD/okvs.cpp src/OCD/test.cpp src/OCD/3H_GCT.cpp src/benchmark/test.cpp src/Batch-PIR/main.cpp)
-set(HEADER_FILES include/spiral.h include/core.h include/constants.h include/poly.h include/util.h include/client.h include/testing.h include/cuckoo.h include/mod.h include/pir.h include/multipir.h include/occ.h include/rbmatrices.h include/okvs.h include/3H_GCT.h)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
+# set(CMAKE_TOOLCHAIN_FILE "~/vcpkg/scripts/buildsystems/vcpkg.cmake")
+set(SRC_FILES src/spiral.cpp src/core.cpp src/constants.cpp src/poly.cpp src/util.cpp src/client.cpp src/testing.cpp src/PBC/test.cpp src/PBC/cuckoo.cpp src/PBC/mod.cpp src/Multi-PIR/pir.cpp src/Multi-PIR/test.cpp src/Multi-PIR/multipir.cpp src/OCC/occ.cpp src/OCC/test.cpp src/OCC/rbmatrices.cpp src/OCD/okvs.cpp src/OCD/test.cpp src/OCD/3H_GCT.cpp src/benchmark/test.cpp src/pir_io.cpp src/Batch-PIR/main.cpp)
+set(HEADER_FILES include/spiral.h include/core.h include/constants.h include/poly.h include/util.h include/client.h include/testing.h include/cuckoo.h include/mod.h include/pir.h include/multipir.h include/occ.h include/rbmatrices.h include/okvs.h include/3H_GCT.h include/pir_io.h)
 add_executable(spiral ${SRC_FILES} ${HEADER_FILES})
 target_include_directories(spiral PUBLIC include)
-target_include_directories(spiral PUBLIC /home/$ENV{USER}/vcpkg/installed/)
+target_include_directories(spiral PUBLIC ~/vcpkg/installed/)
 
 # Must specify:
 # -DCMAKE_TOOLCHAIN_FILE=/home/ubuntu/vcpkg/scripts/buildsystems/vcpkg.cmake
@@ -54,3 +55,10 @@ add_compile_definitions(
     QNUMREST=$(QNUMREST)
     OUTN=$(OUTN)
 )
+
+if (DEBUG)
+  message(STATUS "以DEBUG模式编译，输出调试信息")
+  add_compile_definitions(DEBUG)
+else()
+  add_compile_options(-Wno-deprecated-declarations)
+endif()

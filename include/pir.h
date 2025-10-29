@@ -1,3 +1,5 @@
+#pragma once
+
 #include "spiral.h"
 #include "cuckoo.h"
 #include <vector>

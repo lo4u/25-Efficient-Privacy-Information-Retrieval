@@ -53,12 +53,8 @@ double check_relation(
     }
     M_result = s_prod;
 
-		// if (corr.isNTT)
-		// 	corr = from_ntt(corr);
-		// if (M_result.isNTT)
-		// 	M_result = from_ntt(M_result);
-    // cout << "Is correct?: " << is_eq(corr, M_result) << endl;
-    cout << "Is correct?: 1" << endl;
+    cout << "Is correct?: " << is_eq(corr, M_result) << endl;
+    // cout << "Is correct?: 1" << endl;
     show_diff = false;
     if (show_diff) {
         for (size_t i = 0; i < 10 ; i++) {
@@ -237,8 +233,9 @@ void genDataBase(
     pt_test = MatPoly(n0, n0);
     for (size_t i = 0 ; i < total_n ; i++) {
         gen_deterministic_random_pt(pt_tmp, i);
-        // output_pt(pt_tmp);
-        // generate_random_pt(pt_tmp);
+        MatPoly pt_real;
+        cop(pt_real, pt_tmp);
+        pt_reals.push_back(pt_real);
 
         pt_encd_raw = pt_tmp;
         for (size_t pol = 0; pol < n0 * n2 * poly_len; pol++) {
@@ -256,18 +253,18 @@ void genDataBase(
         to_ntt(pts_encd_test, pt_encd_raw);
         // print_pt_crt(pts_encd_test);
 
-        if (std::find(IDX_TARGETs.begin(), IDX_TARGETs.end(), i) != IDX_TARGETs.end()) {
-            // cout << "===============FIND ONE ANSWER" << i << "==================" << endl;
-            MatPoly pt_real_test(n0, n2, false);
-            cop(pt_encd_correct_test, pts_encd_test);
-            cop(pt_real_test, pt_tmp);
-            to_ntt(pt_test, pt_tmp);
-            cop(pt_correct_test, pt_test);
-            pt_reals.push_back(pt_real_test);
-            // for (size_t xxx = 0; xxx < 10 ; xxx++) {
-            //     cout << xxx << " " << pt_real_test.data[xxx] << endl;
-            // }
-        }
+        // if (std::find(IDX_TARGETs.begin(), IDX_TARGETs.end(), i) != IDX_TARGETs.end()) {
+        //     // cout << "===============FIND ONE ANSWER" << i << "==================" << endl;
+        //     MatPoly pt_real_test(n0, n2, false);
+        //     cop(pt_encd_correct_test, pts_encd_test);
+        //     cop(pt_real_test, pt_tmp);
+        //     to_ntt(pt_test, pt_tmp);
+        //     cop(pt_correct_test, pt_test);
+        //     pt_reals.push_back(pt_real_test);
+        //     // for (size_t xxx = 0; xxx < 10 ; xxx++) {
+        //     //     cout << xxx << " " << pt_real_test.data[xxx] << endl;
+        //     // }
+        // }
 
         // b': i c n z j m
         size_t ii = i % num_per;
