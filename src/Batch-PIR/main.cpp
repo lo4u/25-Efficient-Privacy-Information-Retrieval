@@ -141,11 +141,12 @@ int main(int argc, char *argv[]) {
 			num_expansions = 6;
 			further_dims = 4;
 			total_n = (1 << num_expansions) * (1 << further_dims);
-			IDX_TARGETs.resize(8);
-			std::iota(IDX_TARGETs.begin(), IDX_TARGETs.end(), 1);
+			IDX_TARGETs.resize(32);
+			std::iota(IDX_TARGETs.begin(), IDX_TARGETs.end(), 0);
       std::vector<MatPoly> result = Batch_PIR_with_GCT_okvs(num_expansions, further_dims, IDX_TARGETs);
       return 0;
     }
+    // 读取命令行参数
     argParser.parse(argc, argv);
     num_expansions = std::stoull(argParser.get("dim0")); // max = 7 //used to be 8
     further_dims = std::stoull(argParser.get("dim1"));
@@ -167,7 +168,7 @@ int main(int argc, char *argv[]) {
     std::ofstream fout(argParser.get("output"));
     for (size_t i = 0; i < originalIdx.size(); ++i) {
       size_t offline = getIdxAndOffline(originalIdx[i]).second;
-      std::cout << "find the " << "i" << "th entry: " << result[i].data[offline] << std::endl;
+      std::cout << "find the " << i << " th entry: " << result[i].data[offline] << std::endl;
       fout << result[i].data[offline] << std::endl;
     }
 

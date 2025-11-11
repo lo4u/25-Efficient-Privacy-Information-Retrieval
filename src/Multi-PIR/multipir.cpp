@@ -81,12 +81,20 @@ OracleTy getOracle(
         size_t bLen_padded = nextPowerOfTwo(bLen);
         // cout << "bLen_padded is " << bLen_padded << endl;
         size_t log_bLen_padded = log2OfPowerOfTwo(bLen_padded);
-        size_t num_expansions_prime = (size_t)ceil(((double)log_bLen_padded) / 2) + 1;
+
+        // 这里需要解释一下，数据库规模不能过小，且第一维度必须大于后续维度
+        log_bLen_padded = std::max(log_bLen_padded, (size_t)6);
+        size_t num_expansions_prime;
+        if (log_bLen_padded == 6) {
+          num_expansions_prime = (size_t)ceil(((double)log_bLen_padded) / 2) + 2;
+        } else {
+          num_expansions_prime = (size_t)ceil(((double)log_bLen_padded) / 2) + 1;
+        }
         // cout << "log_bLen_padded is " << log_bLen_padded << endl;
         // cout << "num_expansions_prime " << num_expansions_prime << endl;
         size_t further_dims_prime = log_bLen_padded - num_expansions_prime;
         MultiPirParam temp(num_expansions_prime, further_dims_prime);
-        sizes.push_back(temp);
+        sizes.push_back(temp);  
     }
 
     return std::make_tuple(oracle, sizes);

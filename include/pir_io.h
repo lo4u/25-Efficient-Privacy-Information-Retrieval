@@ -49,9 +49,9 @@ private:
   std::unordered_map<std::string, std::vector<std::string>> args_;
 };
 
-std::vector<uint64_t> loadFile(const std::string filename, const size_t ntotal, const int entrySize=8);
+std::vector<uint64_t> loadFile(const std::string filename, const size_t ntotal, const int entrySize=1);
 
-void genDataBaseFromRawDB(uint64_t* DB, const size_t num_expansions, const size_t further_dims, const std::vector<uint64_t>& rawDB, const int entrySize=8);
+void genDataBaseFromRawDB(uint64_t* &DB, const size_t num_expansions, const size_t further_dims, const std::vector<uint64_t>& rawDB, const int entrySize=1);
 
 inline std::pair<size_t, size_t> getIdxAndOffline(size_t idx) {
   size_t matIndex = idx / (n0 * n0 * poly_len);

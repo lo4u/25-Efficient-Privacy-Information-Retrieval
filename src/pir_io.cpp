@@ -5,7 +5,7 @@ std::vector<uint64_t> loadFile(const std::string filename, const size_t ntotal, 
   if (!fin.is_open()) {
     std::cout << "Failed to load file" << std::endl;
   }
-  if (entrySize > 8) {
+  if (entrySize > 1) {
     std::cout << "FATAL: entrySize is too big..." << std::endl;
     exit(1);
   }
@@ -32,7 +32,7 @@ std::vector<uint64_t> processRawDB(const std::vector<uint64_t> rawDB, size_t num
 }
 
 void genDataBaseFromRawDB(
-  uint64_t* DB,
+  uint64_t* &DB,
   const size_t num_expansions,
   const size_t further_dims,
   const std::vector<uint64_t>& rawDB,
@@ -63,10 +63,17 @@ void genDataBaseFromRawDB(
   size_t counter = 0;
   for (size_t i = 0; i < total_n; i++) {
     for (size_t k = 0; k < n0 * n0 * poly_len; ++k) {
-      pt_tmp.data[k] = rawDB[counter] % (p_db);
+      pt_tmp.data[k] = rawDB[counter];
+#ifdef DEBUG
+      // 检查是否会超出
+      if (pt_tmp.data[k] >= p_db) {
+        std::cout << "FATAL: loaded data exceeds p_db." << std::endl;
+        exit(1);
+      }
+#endif
       ++counter;
     }
-    MatPoly pt_real;
+    MatPoly pt_real(n0, n0, false);
     cop(pt_real, pt_tmp);
     pt_reals.push_back(pt_real);
 

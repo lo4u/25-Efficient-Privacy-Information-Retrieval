@@ -233,7 +233,7 @@ void genDataBase(
     pt_test = MatPoly(n0, n0);
     for (size_t i = 0 ; i < total_n ; i++) {
         gen_deterministic_random_pt(pt_tmp, i);
-        MatPoly pt_real;
+        MatPoly pt_real(n0, n0, false);
         cop(pt_real, pt_tmp);
         pt_reals.push_back(pt_real);
 
