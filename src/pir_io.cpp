@@ -29,6 +29,7 @@ std::vector<uint64_t> loadFile(const std::string filename, const size_t ntotal, 
 
 std::vector<uint64_t> processRawDB(const std::vector<uint64_t> rawDB, size_t num_expansions, size_t further_dims) {
   //todo
+  return std::vector<uint64_t>{};
 }
 
 void genDataBaseFromRawDB(

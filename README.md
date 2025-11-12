@@ -10,8 +10,11 @@ cmake --build build -j4 -- PARAMSET=PARAMS_DYNAMIC \
 
 
 # 调试
-cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=/home/lo4u/vcpkg/scripts/buildsystems/vcpkg.cmake
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=/home/lo4u/vcpkg/scripts/buildsystems/vcpkg.cmake -DDEBUG=on
 cmake --build build -j4 -- PARAMSET=PARAMS_DYNAMIC TEXP=4 TEXPRIGHT=56 TCONV=4 TGSW=4 QPBITS=14 PVALUE=4 QNUMFIRST=1 QNUMREST=0 OUTN=2 ADDTL_CXX_FLAGS=
 
 # 执行
 ./spiral --dim0 6 --dim1 4 --database database.txt --output result.txt --query 0 10000 20000 30000 40000
+
+# 你需要安装的包
+sudo apt install libssl-dev libomp-dev libboost-all-dev -y

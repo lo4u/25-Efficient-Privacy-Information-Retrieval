@@ -1,5 +1,5 @@
 #include "3H_GCT.h"
-const size_t MAX_ATTEMPTS_NUM = 1000;
+
 // 插入元素
 bool GCTHelper(
     std::unordered_map<size_t, size_t>& elements, // 输出结果：保存 position -> [current idx] 

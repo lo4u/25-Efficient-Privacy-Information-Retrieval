@@ -4,6 +4,8 @@
 
 #define MODULUS_56_BIT
 
+constexpr size_t MAX_ATTEMPTS_NUM = 1000;
+
 constexpr long coeff_count_pow_of_2 = 11;
 constexpr size_t coeff_count = 1 << coeff_count_pow_of_2; // the degree of poly in the ring
 constexpr size_t crt_count = 2;

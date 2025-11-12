@@ -98,7 +98,7 @@ void test_GCT_okvs(
   GCTObvKVStore client_OKVS(real_ind.size(), 3, 1.3, packed_pt_vec.size());
 
   // test: the correctness of OKVS
-  auto pt_hat = client_OKVS.Encode(packed_pt_vec, real_ind);
+  auto [pt_hat, counter] = client_OKVS.Encode(packed_pt_vec, real_ind);
 
   cout << "==============================" << endl;
 
@@ -107,7 +107,7 @@ void test_GCT_okvs(
 
   GCTObvKVStore server_OKVS(real_ind.size(), 3, 1.25, packed_pt_vec.size());
   // 不经意解压缩
-  auto cvs = server_OKVS.Decode(cvs_hat);
+  auto cvs = server_OKVS.Decode(cvs_hat, counter);
   cout << "==============================" << endl;
   MultiPirServer server_A(godSizes, DBs, cvs);
   cout << cvs.size() << endl;
@@ -216,7 +216,7 @@ void test_speed_of_3H_GCT_and_RB_Matrix(
 
   // test: the speed of OKVS
   start_timing();
-  auto pt_hat = client_OKVS.Encode(packed_pt_vec, real_ind);
+  auto [pt_hat, counter] = client_OKVS.Encode(packed_pt_vec, real_ind);
   double time_3H_GCT_Compress = end_timing();
   cout << "Time used to do OCD.Compress with 3H-GCT is " << time_3H_GCT_Compress << endl;
 
@@ -227,7 +227,7 @@ void test_speed_of_3H_GCT_and_RB_Matrix(
 
   GCTObvKVStore server_OKVS(real_ind.size(), 3, 1.3, packed_pt_vec.size());
   start_timing();
-  auto cvs = server_OKVS.Decode(cvs_hat);
+  auto cvs = server_OKVS.Decode(cvs_hat, counter);
   double time_3H_GCT_Decompress = end_timing();
   cout << "Time used to do OCD.Decompress with 3H-GCT is " << time_3H_GCT_Decompress << endl;
   cout << "Total time used to do OCD with 3H-GCT is " << time_3H_GCT_Decompress + time_3H_GCT_Compress + time_encrypt << endl;

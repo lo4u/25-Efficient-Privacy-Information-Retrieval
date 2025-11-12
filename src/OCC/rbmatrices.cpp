@@ -343,8 +343,8 @@ std::vector<MatPoly> GaussianElimination(
 
     if (r < rows) {
         for (size_t i = r ; i < rows ; i++) {
-            if (isZero(augmentedMatrix[i][cols])) {
-                std::runtime_error("No solution");
+            if (!isZero(augmentedMatrix[i][cols])) {
+                throw std::runtime_error("No solution");
             }
         }
     }
@@ -431,8 +431,8 @@ std::vector<MatPoly> GaussianEliminationWithUnderdeterminedMatrix(
 
     if (r < rows) {
         for (size_t i = r ; i < rows ; i++) {
-            if (isZero(augmentedMatrix[i][cols])) {
-                std::runtime_error("No solution");
+            if (!isZero(augmentedMatrix[i][cols])) {
+                throw std::runtime_error("No solution");
             }
         }
     }

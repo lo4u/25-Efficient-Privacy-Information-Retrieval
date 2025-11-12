@@ -85,13 +85,13 @@ std::vector<MatPoly> Batch_PIR_with_GCT_okvs(
     GCTObvKVStore client_OKVS(real_ind.size(), 3, 1.3, packed_pt_vec.size());
 
     // test: the correctness of OKVS
-    auto pt_hat = client_OKVS.Encode(packed_pt_vec, real_ind);
+    auto [pt_hat,counter] = client_OKVS.Encode(packed_pt_vec, real_ind);
     // cout << "============" << endl;
 
     auto cvs_hat = client_A.MultiPackedIndexEncrypt(pt_hat); // In NTT
 
     GCTObvKVStore server_OKVS(real_ind.size(), 3, 1.3, packed_pt_vec.size());
-    auto cvs = server_OKVS.Decode(cvs_hat);
+    auto cvs = server_OKVS.Decode(cvs_hat, counter);
     MultiPirServer server_A(godSizes, DBs, cvs);
     // cout << cvs.size() << endl;
     // cout << server_A.handles.size() << endl;
@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
 			num_expansions = 6;
 			further_dims = 4;
 			total_n = (1 << num_expansions) * (1 << further_dims);
-			IDX_TARGETs.resize(32);
+			IDX_TARGETs.resize(5);
 			std::iota(IDX_TARGETs.begin(), IDX_TARGETs.end(), 0);
       std::vector<MatPoly> result = Batch_PIR_with_GCT_okvs(num_expansions, further_dims, IDX_TARGETs);
       return 0;

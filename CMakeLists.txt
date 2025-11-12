@@ -43,9 +43,11 @@ target_include_directories(spiral PUBLIC ~/vcpkg/installed/)
 # Must specify:
 # -DCMAKE_TOOLCHAIN_FILE=/home/ubuntu/vcpkg/scripts/buildsystems/vcpkg.cmake
 
+set(CMAKE_PREFIX_PATH "~/vcpkg/installed/x64-linux/share")
 find_package(HEXL CONFIG REQUIRED)
 target_link_libraries(spiral PRIVATE HEXL::hexl)
 
+# 找不到时请去安装libssl-dev
 find_package(OpenSSL REQUIRED)
 target_link_libraries(spiral PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
