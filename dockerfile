@@ -6,22 +6,25 @@ ARG NOAVX512="OFF" # 默认不禁用AVX-512
 ARG NOAVX2="OFF"   # 默认不禁用AVX2
 ARG NOCRT="OFF"    # 默认不禁用CRT
 
-
-# RUN	apt update && \
-# 		apt install -y libboost-all-dev libomp-dev build-essential clang libtool libssl-dev && \
-#   	apt install -y  git python3 pkg-config curl zip unzip wget tar sudo make && \
-# 		rm -rf /var/lib/apt/lists/*
-
-# # 通过源码安装高版本cmake
-# RUN wget https://github.com/Kitware/CMake/releases/download/v3.31.8/cmake-3.31.8.tar.gz && \
-# 		tar -xvf cmake-3.31.8.tar.gz && \
-# 		cd cmake-3.31.8 && ./bootstrap && \
-# 		make && sudo make install
-
+# 换清华源（可选）
+RUN sed -i 's|http://.*archive.ubuntu.com|http://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list && \
+    sed -i 's|http://.*security.ubuntu.com|http://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list && \
+    apt-get update
 RUN apt update && \
-		apt install -y libboost-all-dev libomp-dev build-essential clang cmake libssl-dev libtool && \
+		apt install -y libboost-all-dev build-essential clang cmake libssl-dev libtool && \
 		apt install -y git python3 pkg-config curl zip unzip tar && \
 		rm -rf /var/lib/apt/lists/*	
+
+RUN git clone https://github.com/llvm/llvm-project.git --depth=1 --filter=blob:none && \
+    mkdir -p llvm-project/openmp/build
+WORKDIR llvm-project/openmp/build
+
+RUN cmake .. \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DLIBOMP_ENABLE_SHARED=OFF \
+  -DLIBOMP_ENABLE_STATIC=ON \
+  -DCMAKE_INSTALL_PREFIX=/usr/local
+RUN make -j && make install
 
 WORKDIR /app
 

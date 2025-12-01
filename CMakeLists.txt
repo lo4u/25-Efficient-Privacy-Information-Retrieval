@@ -5,6 +5,10 @@ set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 set(CMAKE_CXX_STANDARD 17)
+set(OpenMP_omp_LIBRARY "/usr/local/lib/libomp.a")
+set(BUILD_SHARED_LIBS OFF)  # 只找静态库
+
+
 
 if (DEBUG)
   message(STATUS "以DEBUG模式编译，输出调试信息")
@@ -50,6 +54,9 @@ target_link_libraries(spiral PRIVATE HEXL::hexl)
 # 找不到时请去安装libssl-dev
 find_package(OpenSSL REQUIRED)
 target_link_libraries(spiral PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+
+find_package(OpenMP REQUIRED)
+target_link_libraries(spiral PRIVATE OpenMP::OpenMP_CXX)
 
 add_compile_definitions(
     TEXP=$(TEXP)
