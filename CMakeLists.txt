@@ -5,19 +5,27 @@ set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 set(CMAKE_CXX_STANDARD 17)
-set(OpenMP_omp_LIBRARY "/usr/local/lib/libomp.a")
-set(BUILD_SHARED_LIBS OFF)  # 只找静态库
+
+if (STATICMODE)
+  message(STATUS "以静态模式编译")
+  set(OpenMP_CXX_FLAGS "-fopenmp")
+  set(OpenMP_CXX_LIB_NAMES "omp")
+  set(OpenMP_omp_LIBRARY "/usr/local/lib/libomp.a")
+  set(BUILD_SHARED_LIBS OFF)  # 只找静态库
+else()
+  message(STATUS "以动态模式编译")
+endif()
 
 
 
 if (DEBUG)
   message(STATUS "以DEBUG模式编译，输出调试信息")
   add_compile_definitions(DEBUG)
-  set(CMAKE_CXX_FLAGS "-g -O0 -std=c++17 -MD -march=native -fopenmp")
+  set(CMAKE_CXX_FLAGS "-g -O0 -std=c++17 -MD -march=native")
   set(CMAKE_CXX_FLAGS_RELEASE "-O0")
 else()
   add_compile_options(-Wno-deprecated-declarations)
-  set(CMAKE_CXX_FLAGS "-g -O3 -std=c++17 -MD -march=native -fopenmp")
+  set(CMAKE_CXX_FLAGS "-g -O3 -std=c++17 -MD -march=native")
 endif()
 
 option(NOAVX512 "Disable AVX-512" OFF)
@@ -47,7 +55,12 @@ target_include_directories(spiral PUBLIC ~/vcpkg/installed/)
 # Must specify:
 # -DCMAKE_TOOLCHAIN_FILE=/home/ubuntu/vcpkg/scripts/buildsystems/vcpkg.cmake
 
-set(CMAKE_PREFIX_PATH "~/vcpkg/installed/x64-linux/share")
+set(CMAKE_PREFIX_PATH 
+  "~/vcpkg/installed/x64-linux/share"
+  "./vcpkg/installed/x64-linux/share"
+)
+
+# 链接hexl
 find_package(HEXL CONFIG REQUIRED)
 target_link_libraries(spiral PRIVATE HEXL::hexl)
 
@@ -55,8 +68,11 @@ target_link_libraries(spiral PRIVATE HEXL::hexl)
 find_package(OpenSSL REQUIRED)
 target_link_libraries(spiral PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
-find_package(OpenMP REQUIRED)
-target_link_libraries(spiral PRIVATE OpenMP::OpenMP_CXX)
+if (STATICMODE)
+  # 链接OpenMP
+  find_package(OpenMP REQUIRED)
+  target_link_libraries(spiral PRIVATE OpenMP::OpenMP_CXX)
+endif()
 
 add_compile_definitions(
     TEXP=$(TEXP)

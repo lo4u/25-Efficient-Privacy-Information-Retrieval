@@ -45,7 +45,7 @@ RUN ./vcpkg install hexl
 
 WORKDIR ${PROJECT_DIR}
 
-RUN cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake \
+RUN cmake -S . -B build -DSTATICMODE=ON \
 			-DNOAVX512=${NOAVX512} -DNOAVX2=${NOAVX2}	-DNOCRT=${NOCRT}
 RUN cmake --build build -j4 -- PARAMSET=PARAMS_DYNAMIC \
   		TEXP=8 TEXPRIGHT=56 TCONV=4 TGSW=8 QPBITS=20 PVALUE=256 \
@@ -54,6 +54,5 @@ RUN cmake --build build -j4 -- PARAMSET=PARAMS_DYNAMIC \
 
 FROM ubuntu:22.04
 WORKDIR /app
-COPY --from=builder /app/25-Efficient-Privacy-Information-Retrieval/build /app/pir/build
-COPY --from=builder /usr/lib/llvm-14/lib/libomp.so.5 /lib/x86_64-linux-gnu/libomp.so.5
-WORKDIR /app/pir/build/bin
+COPY --from=builder /app/25-Efficient-Privacy-Information-Retrieval/spiral /app/pir/
+WORKDIR /app/pir/
