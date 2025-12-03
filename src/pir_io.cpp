@@ -65,7 +65,7 @@ void genDataBaseFromRawDB(
   for (size_t i = 0; i < total_n; i++) {
     for (size_t k = 0; k < n0 * n0 * poly_len; ++k) {
       pt_tmp.data[k] = rawDB[counter];
-#ifdef DEBUG
+#ifdef PIRDEBUG
       // 检查是否会超出
       if (pt_tmp.data[k] >= p_db) {
         std::cout << "FATAL: loaded data exceeds p_db." << std::endl;

@@ -18,9 +18,9 @@ endif()
 
 
 
-if (DEBUG)
+if (PIRDEBUG)
   message(STATUS "以DEBUG模式编译，输出调试信息")
-  add_compile_definitions(DEBUG)
+  add_compile_definitions(PIRDEBUG)
   set(CMAKE_CXX_FLAGS "-g -O0 -std=c++17 -MD -march=native")
   set(CMAKE_CXX_FLAGS_RELEASE "-O0")
 else()
@@ -46,11 +46,11 @@ endif()
 # main target
 # 设置可执行文件的输出目录
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
-set(SRC_FILES src/spiral.cpp src/core.cpp src/constants.cpp src/poly.cpp src/util.cpp src/client.cpp src/testing.cpp src/PBC/test.cpp src/PBC/cuckoo.cpp src/PBC/mod.cpp src/Multi-PIR/pir.cpp src/Multi-PIR/test.cpp src/Multi-PIR/multipir.cpp src/OCC/occ.cpp src/OCC/test.cpp src/OCC/rbmatrices.cpp src/OCD/okvs.cpp src/OCD/test.cpp src/OCD/3H_GCT.cpp src/benchmark/test.cpp src/pir_io.cpp src/Batch-PIR/main.cpp)
-set(HEADER_FILES include/spiral.h include/core.h include/constants.h include/poly.h include/util.h include/client.h include/testing.h include/cuckoo.h include/mod.h include/pir.h include/multipir.h include/occ.h include/rbmatrices.h include/okvs.h include/3H_GCT.h include/pir_io.h)
+set(SRC_FILES src/spiral.cpp src/core.cpp src/constants.cpp src/poly.cpp src/util.cpp src/client.cpp src/testing.cpp src/PBC/test.cpp src/PBC/cuckoo.cpp src/PBC/mod.cpp src/Multi-PIR/pir.cpp src/Multi-PIR/test.cpp src/Multi-PIR/multipir.cpp src/OCC/occ.cpp src/OCC/test.cpp src/OCC/rbmatrices.cpp src/OCD/okvs.cpp src/OCD/test.cpp src/OCD/3H_GCT.cpp src/benchmark/test.cpp src/pir_io.cpp src/Batch-PIR/test_batch.cpp src/Batch-PIR/PIR_server.cpp src/Network/net_server.cpp src/Batch-PIR/PIR_client.cpp src/Network/net_client.cpp src/Batch-PIR/main.cpp)
+set(HEADER_FILES include/spiral.h include/core.h include/constants.h include/poly.h include/util.h include/client.h include/testing.h include/cuckoo.h include/mod.h include/pir.h include/multipir.h include/occ.h include/rbmatrices.h include/okvs.h include/3H_GCT.h include/pir_io.h include/PIR_server.h include/net_server.h include/PIR_client.h include/net_client.h)
 add_executable(spiral ${SRC_FILES} ${HEADER_FILES})
-target_include_directories(spiral PUBLIC include)
-target_include_directories(spiral PUBLIC ~/vcpkg/installed/)
+target_include_directories(spiral PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/thirdparty/include ~/vcpkg/installed/)
+target_link_directories(spiral PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/lib)
 
 # Must specify:
 # -DCMAKE_TOOLCHAIN_FILE=/home/ubuntu/vcpkg/scripts/buildsystems/vcpkg.cmake
@@ -73,6 +73,9 @@ if (STATICMODE)
   find_package(OpenMP REQUIRED)
   target_link_libraries(spiral PRIVATE OpenMP::OpenMP_CXX)
 endif()
+
+target_link_libraries(spiral PRIVATE muduo_net muduo_base)
+
 
 add_compile_definitions(
     TEXP=$(TEXP)

@@ -60,7 +60,6 @@ struct MatPoly {
         }
         return *this;
     }
-
 };
 
 // template<size_t s_rows, size_t s_cols>
@@ -151,6 +150,27 @@ inline uint64_t barrett_coeff(uint64_t val, size_t n) {
     return (n == 0) ? barrett_raw_u64(val, cr1_p, p_i)
                     : barrett_raw_u64(val, cr1_b, b_i);
     return val;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const MatPoly& mat) {
+  assert((out.flags() & std::ios::binary) && "Output stream must be in binary mode");
+  size_t factor = mat.isNTT ? crt_count : 1;
+  out.write(reinterpret_cast<const char*>(&(mat.rows)), sizeof(mat.rows));
+  out.write(reinterpret_cast<const char*>(&(mat.cols)), sizeof(mat.cols));
+  out.write(reinterpret_cast<const char*>(&(mat.isNTT)), sizeof(mat.isNTT));
+  out.write(reinterpret_cast<const char*>(mat.data), mat.rows * mat.cols * poly_len * factor * sizeof(uint64_t));
+  return out;
+}
+
+inline std::istream& operator>>(std::istream& in, MatPoly& mat) {
+  assert((in.flags() & std::ios::binary) && "Input stream must be in binary mode");
+  in.read(reinterpret_cast<char*>(&(mat.rows)), sizeof(mat.rows));
+  in.read(reinterpret_cast<char*>(&(mat.cols)), sizeof(mat.cols));
+  in.read(reinterpret_cast<char*>(&(mat.isNTT)), sizeof(mat.isNTT));
+  size_t factor = mat.isNTT ? crt_count : 1;
+  mat.data = (uint64_t*)calloc(mat.rows * mat.cols * poly_len * factor, sizeof(uint64_t));
+  in.read(reinterpret_cast<char*>(mat.data), mat.rows * mat.cols * poly_len * factor * sizeof(uint64_t));
+  return in;
 }
 
 // 优化大数模运算

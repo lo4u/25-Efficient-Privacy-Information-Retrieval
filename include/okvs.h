@@ -1,3 +1,5 @@
+#pragma once
+
 #include "3H_GCT.h"
 
 class GCTObvKVStore {

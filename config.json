@@ -1,0 +1,9 @@
+{
+  "databaseConfig": {
+    "database": "./database.txt",
+    "batch_threshold": 4
+  },
+  "log_dir": "/var/log/pir",
+  "max_clients": 64,
+  "port": 10086
+}
